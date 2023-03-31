@@ -20,7 +20,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        yarn ci
+        yarn install --frozen-lockfile
 
     - name: Deploy to Linode
       env:
