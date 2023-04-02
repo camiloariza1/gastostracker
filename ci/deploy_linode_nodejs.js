@@ -4,6 +4,8 @@ const axios = require("axios");
 const fs = require("fs");
 const { Client } = require("ssh2");
 
+const PUBLIC_KEY = process.env.PUBLIC_KEY;
+
 const LINODE_API_TOKEN = process.env.LINODE_API_TOKEN;
 const PRIVATE_KEY_PATH = "private_key.pem";
 
