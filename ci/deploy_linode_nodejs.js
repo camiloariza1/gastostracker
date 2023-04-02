@@ -70,10 +70,8 @@ async function deploy() {
   const instanceIp = await waitForInstanceReady(instance.id); // Use instance.id instead of instanceId
   console.log(`Linode instance is active with IP: ${instanceIp}`);
 
-  console.log(`Using public key: ${PUBLIC_KEY}`);
-
   // Add a delay before attempting SSH connection
-  console.log("Waiting for 1 minute before attempting SSH connection...");
+  console.log("Waiting for 30 seconds before attempting SSH connection...");
   await new Promise((resolve) => setTimeout(resolve, 30000));
 
   // SSH into the instance and deploy the application
@@ -86,8 +84,8 @@ async function deploy() {
       // You can chain commands using && or execute them one by one using `conn.exec`
       const setupCommands = `
         mkdir -p /root/.ssh &&
-        echo '${PUBLIC_KEY}' >> /root/.ssh/authorized_keys &&
-        chmod 600 ~/.ssh/authorized_keys &&
+        echo '${PUBLIC_KEY}' > /root/.ssh/authorized_keys &&
+        chmod 600 /root/.ssh/authorized_keys &&
         apt-get update && apt-get upgrade -y &&
         apt-get install -y openssh-server &&
         ufw allow ssh &&
