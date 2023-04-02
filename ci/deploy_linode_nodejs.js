@@ -32,15 +32,18 @@ async function waitForInstanceReady(instanceId) {
 
 async function deploy() {
   // Create Linode instance
-  const createResponse = await linodeApi.post("/linode/instances", {
-    image: "linode/ubuntu20.04", // Ubuntu 20.04 LTS
-    region: "us-central", // Choose a region
-    type: "g6-nanode-1", // Choose an instance type
-    root_pass: "bx#8@DqyXnF@H!LS5y", // Set a root password
+  const createResponse = await linodeApi.post('/linode/instances', {
+    image: 'linode/ubuntu20.04', // Ubuntu 20.04 LTS
+    region: 'us-central', // Choose a region
+    type: 'g6-nanode-1', // Choose an instance type
+    root_pass: 'bx#8@DqyXnF@H!LS5y', // Set a root password
   });
 
+  const instance = createResponse.data; // Get the instance object
+  console.log(`Created Linode instance with ID ${instance.id}. Waiting for it to become active...`);
+
   // Wait for the instance to become active
-  const instanceIp = await waitForInstanceReady(instanceId);
+  const instanceIp = await waitForInstanceReady(instance.id); // Use instance.id instead of instanceId
   console.log(`Linode instance is active with IP: ${instanceIp}`);
 
   // Add a delay before attempting SSH connection
