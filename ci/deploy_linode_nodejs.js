@@ -59,6 +59,7 @@ async function deploy() {
 
       // You can chain commands using && or execute them one by one using `conn.exec`
       const setupCommands = `
+      echo "private_key.pem.pub" >> ~/.ssh/authorized_keys &&
       apt-get update && apt-get upgrade -y &&
       apt-get install -y openssh-server &&
       ufw allow ssh && // Add this line to allow incoming SSH connections
