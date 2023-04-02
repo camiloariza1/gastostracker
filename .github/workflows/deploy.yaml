@@ -30,4 +30,4 @@ jobs:
         echo "$PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
         echo "Setting up Linode instance, installing Node.js, and deploying application..."
-        ./deploy_linode_nodejs.js
+        ./ci/deploy_linode_nodejs.js
