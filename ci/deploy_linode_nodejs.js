@@ -86,19 +86,19 @@ async function deploy() {
 
       // You can chain commands using && or execute them one by one using `conn.exec`
       const setupCommands = `
-      mkdir -p /root/.ssh &&
-      echo '${PUBLIC_KEY}' >> /root/.ssh/authorized_keys &&
-      chmod 600 ~/.ssh/authorized_keys &&
-      apt-get update && apt-get upgrade -y &&
-      apt-get install -y openssh-server &&
-      ufw allow ssh && // Add this line to allow incoming SSH connections
-      curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&
-      apt-get install -y nodejs &&
-      git clone https://github.com/yourusername/your-nodejs-app.git /app &&
-      cd /app &&
-      npm install &&
-      npm start
-    `;
+        mkdir -p /root/.ssh &&
+        echo '${PUBLIC_KEY}' >> /root/.ssh/authorized_keys &&
+        chmod 600 ~/.ssh/authorized_keys &&
+        apt-get update && apt-get upgrade -y &&
+        apt-get install -y openssh-server &&
+        ufw allow ssh &&
+        curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&
+        apt-get install -y nodejs &&
+        git clone https://github.com/camiloariza1/gastostracker.git /app &&
+        cd /app &&
+        npm install &&
+        npm start
+      `;
 
       conn.exec(setupCommands, (err, stream) => {
         if (err) throw err;
