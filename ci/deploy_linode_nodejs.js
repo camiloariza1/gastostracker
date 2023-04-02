@@ -14,6 +14,24 @@ const linodeApi = axios.create({
   },
 });
 
+async function terminateRunningInstances() {
+  const response = await linodeApi.get("/linode/instances");
+  const instances = response.data.data;
+
+  const runningInstances = instances.filter(
+    (instance) => instance.status === "running"
+  );
+
+  for (const instance of runningInstances) {
+    console.log(
+      `Terminating running Linode instance with ID ${instance.id}...`
+    );
+    await linodeApi.delete(`/linode/instances/${instance.id}`);
+  }
+
+  console.log("All running Linode instances terminated.");
+}
+
 async function waitForInstanceReady(instanceId) {
   const checkInstanceStatus = async () => {
     const response = await linodeApi.get(`/linode/instances/${instanceId}`);
@@ -31,20 +49,27 @@ async function waitForInstanceReady(instanceId) {
 }
 
 async function deploy() {
+  // Terminate running instances
+  await terminateRunningInstances();
+
   // Create Linode instance
-  const createResponse = await linodeApi.post('/linode/instances', {
-    image: 'linode/ubuntu20.04', // Ubuntu 20.04 LTS
-    region: 'us-central', // Choose a region
-    type: 'g6-nanode-1', // Choose an instance type
-    root_pass: 'bx#8@DqyXnF@H!LS5y', // Set a root password
+  const createResponse = await linodeApi.post("/linode/instances", {
+    image: "linode/ubuntu20.04", // Ubuntu 20.04 LTS
+    region: "us-central", // Choose a region
+    type: "g6-nanode-1", // Choose an instance type
+    root_pass: "bx#8@DqyXnF@H!LS5y", // Set a root password
   });
 
   const instance = createResponse.data; // Get the instance object
-  console.log(`Created Linode instance with ID ${instance.id}. Waiting for it to become active...`);
+  console.log(
+    `Created Linode instance with ID ${instance.id}. Waiting for it to become active...`
+  );
 
   // Wait for the instance to become active
   const instanceIp = await waitForInstanceReady(instance.id); // Use instance.id instead of instanceId
   console.log(`Linode instance is active with IP: ${instanceIp}`);
+
+  console.log(`Using public key: ${PUBLIC_KEY}`);
 
   // Add a delay before attempting SSH connection
   console.log("Waiting for 1 minute before attempting SSH connection...");
@@ -56,8 +81,6 @@ async function deploy() {
   conn
     .on("ready", () => {
       console.log("Connected to Linode instance via SSH.");
-
-      console.log(`Using public key: ${PUBLIC_KEY}`);
 
       // You can chain commands using && or execute them one by one using `conn.exec`
       const setupCommands = `
