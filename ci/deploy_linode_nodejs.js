@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
 const axios = require("axios");
-const fs = require("fs");
 const { Client } = require("ssh2");
 
 const PUBLIC_KEY = process.env.PUBLIC_KEY;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 const LINODE_API_TOKEN = process.env.LINODE_API_TOKEN;
-const PRIVATE_KEY_PATH = "private_key.pem";
 
 const linodeApi = axios.create({
   baseURL: "https://api.linode.com/v4",
@@ -75,7 +74,7 @@ async function deploy() {
 
   // Add a delay before attempting SSH connection
   console.log("Waiting for 1 minute before attempting SSH connection...");
-  await new Promise((resolve) => setTimeout(resolve, 60000));
+  await new Promise((resolve) => setTimeout(resolve, 30000));
 
   // SSH into the instance and deploy the application
   const conn = new Client();
@@ -115,7 +114,7 @@ async function deploy() {
       host: instanceIp,
       port: 22,
       username: "root",
-      privateKey: fs.readFileSync(PRIVATE_KEY_PATH),
+      privateKey: PRIVATE_KEY,
     });
 }
 
