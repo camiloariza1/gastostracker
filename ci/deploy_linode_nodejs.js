@@ -57,9 +57,12 @@ async function deploy() {
     .on("ready", () => {
       console.log("Connected to Linode instance via SSH.");
 
+      console.log(`Using public key: ${PUBLIC_KEY}`);
+
       // You can chain commands using && or execute them one by one using `conn.exec`
       const setupCommands = `
-      echo '$PUBLIC_KEY' >> ~/.ssh/authorized_keys &&
+      mkdir -p /root/.ssh &&
+      echo '${PUBLIC_KEY}' >> /root/.ssh/authorized_keys &&
       chmod 600 ~/.ssh/authorized_keys &&
       apt-get update && apt-get upgrade -y &&
       apt-get install -y openssh-server &&
