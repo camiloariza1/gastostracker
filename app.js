@@ -30,8 +30,9 @@ bot.command('add', async (ctx) => {
       await expense.save();
       ctx.reply(`Gasto de ${amount} fue adherido exitosamente en ${formattedDate(date)}.`);
     } catch (error) {
+      console.error(error);
       ctx.reply('Error al guardar el gasto.');
-    }
+    }    
   } else {
     ctx.reply('Mal formato. Intenta nuevamente con un numero valido.');
   }

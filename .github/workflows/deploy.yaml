@@ -27,6 +27,7 @@ jobs:
         LINODE_API_TOKEN: ${{ secrets.LINODE_API_TOKEN }}
         PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run: |
         echo "$PRIVATE_KEY" > private_key.pem
         echo "$PUBLIC_KEY" > private_key.pem.pub

@@ -5,8 +5,8 @@ const { Client } = require("ssh2");
 
 const PUBLIC_KEY = process.env.PUBLIC_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-
 const LINODE_API_TOKEN = process.env.LINODE_API_TOKEN;
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 
 const linodeApi = axios.create({
   baseURL: "https://api.linode.com/v4",
@@ -83,18 +83,23 @@ async function deploy() {
 
       // You can chain commands using && or execute them one by one using `conn.exec`
       const setupCommands = `
-        mkdir -p /root/.ssh &&
-        echo '${PUBLIC_KEY}' > /root/.ssh/authorized_keys &&
-        chmod 600 /root/.ssh/authorized_keys &&
-        apt-get update && apt-get upgrade -y &&
-        apt-get install -y openssh-server &&
-        ufw allow ssh &&
-        curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&
-        apt-get install -y nodejs &&
-        git clone https://github.com/camiloariza1/gastostracker.git /app &&
-        cd /app &&
-        npm install &&
-        npm start
+      mkdir -p /root/.ssh &&
+      echo '${PUBLIC_KEY}' > /root/.ssh/authorized_keys &&
+      chmod 600 /root/.ssh/authorized_keys &&
+      apt-get update && apt-get upgrade -y &&
+      apt-get install -y openssh-server build-essential python &&
+      ufw allow ssh &&
+      curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&
+      apt-get install -y nodejs &&
+      curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&
+      echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&
+      apt-get update && apt-get install -y yarn &&
+      curl -fsSL https://get.docker.com | sh &&
+      apt-get install -y docker-compose &&
+      git clone https://camiloariza1:${ACCESS_TOKEN}@github.com/camiloariza1/gastostracker.git /app &&
+      cd /app &&
+      yarn install &&
+      docker-compose up -d
       `;
 
       conn.exec(setupCommands, (err, stream) => {
