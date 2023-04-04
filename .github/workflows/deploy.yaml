@@ -22,15 +22,44 @@ jobs:
       run: |
         yarn install --frozen-lockfile
 
-    - name: Deploy to Linode
+    # - name: Deploy to Linode
+    #   env:
+    #     LINODE_API_TOKEN: ${{ secrets.LINODE_API_TOKEN }}
+    #     PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    #     PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+    #     ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    #   run: |
+    #     echo "$PRIVATE_KEY" > private_key.pem
+    #     echo "$PUBLIC_KEY" > private_key.pem.pub
+    #     chmod 600 private_key.pem
+    #     echo "Setting up Linode instance, installing Node.js, and deploying application..."
+    #     ./ci/deploy_linode_nodejs.js
+
+    - name: SSH and Deploy to Linode
+      uses: appleboy/ssh-action@v0.1.8
       env:
-        LINODE_API_TOKEN: ${{ secrets.LINODE_API_TOKEN }}
-        PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key.pem
-        echo "$PUBLIC_KEY" > private_key.pem.pub
-        chmod 600 private_key.pem
-        echo "Setting up Linode instance, installing Node.js, and deploying application..."
-        ./ci/deploy_linode_nodejs.js
+          LINODE_API_TOKEN: ${{ secrets.LINODE_API_TOKEN }}
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          apt-get update && apt-get upgrade -y
+          apt-get install -y openssh-server build-essential python
+          ufw allow ssh
+          curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+          apt-get install -y nodejs
+          curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+          echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+          apt-get update && apt-get install -y yarn
+          curl -fsSL https://get.docker.com | sh
+          apt-get install -y docker-compose
+          git clone https://camiloariza1:$ACCESS_TOKEN@github.com/camiloariza1/gastostracker.git /app
+          cd /app
+          yarn install
+          docker-compose up -d
+
