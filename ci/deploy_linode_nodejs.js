@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const axios = require("axios");
-const ssh2 = require("ssh2");
+const { Client } = require("ssh2");
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const LINODE_API_TOKEN = process.env.LINODE_API_TOKEN;
@@ -71,7 +71,7 @@ async function deploy() {
 
   // SSH into the instance and deploy the application
   console.log('Attempting to SSH into the server...');
-  const conn = new ssh2();
+  const conn = new Client();
 
   conn
     .on("ready", () => {
