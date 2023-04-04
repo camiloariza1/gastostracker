@@ -47,19 +47,17 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        script: |
-          apt-get update && apt-get upgrade -y
-          apt-get install -y openssh-server build-essential python
-          ufw allow ssh
-          curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
-          apt-get install -y nodejs
-          curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-          echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-          apt-get update && apt-get install -y yarn
-          curl -fsSL https://get.docker.com | sh
-          apt-get install -y docker-compose
-          git clone https://camiloariza1:$ACCESS_TOKEN@github.com/camiloariza1/gastostracker.git /app
-          cd /app
-          yarn install
-          docker-compose up -d
+        run: |
+          apt-get update && apt-get upgrade -y &&
+          apt-get install -y openssh-server build-essential python &&
+          curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&
+          apt-get install -y nodejs &&
+          echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list &&
+          apt-get update && apt-get install -y yarn &&
+          curl -fsSL https://get.docker.com | sh &&
+          apt-get install -y docker-compose &&
+          git clone https://camiloariza1:$ACCESS_TOKEN@github.com/camiloariza1/gastostracker.git /app &&
+          cd /app &&
+          yarn install &&
+          docker-compose up -d &&
 
