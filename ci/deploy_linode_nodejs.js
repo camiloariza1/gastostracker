@@ -71,7 +71,9 @@ async function deploy() {
 
   // SSH into the instance and deploy the application
   console.log('Attempting to SSH into the server...');
-  const conn = new Client();
+  const conn = new Client({
+    readyTimeout: 30000, // 30 seconds
+  });
 
   conn
     .on("ready", () => {
