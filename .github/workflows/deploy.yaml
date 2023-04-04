@@ -47,6 +47,6 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        script: bash deploy.sh $ACCESS_TOKEN
+        script: bash ./ci/deploy.sh $ACCESS_TOKEN
           
 
