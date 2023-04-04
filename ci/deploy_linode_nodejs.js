@@ -83,6 +83,9 @@ async function deploy() {
 
       // You can chain commands using && or execute them one by one using `conn.exec`
       const setupCommands = `
+        apt-get update && apt-get upgrade -y &&
+        apt-get install -y openssh-server build-essential python &&
+        ufw allow ssh &&
         curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&
         apt-get install -y nodejs &&
         curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&
