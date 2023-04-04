@@ -47,7 +47,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        run: |
+        script: |
           apt-get update && apt-get upgrade -y &&
           apt-get install -y openssh-server build-essential python &&
           curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&
