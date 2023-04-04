@@ -24,7 +24,7 @@ jobs:
       run: |
         yarn install --frozen-lockfile &&
         mkdir -p ~/.ssh &&
-        echo ${PUBLIC_KEY} >> ~/.ssh/authorized_keys &&
+        echo ${PUBLIC_KEY} >> ~/.ssh/authorized_keys
     
     - name: Deploy to Linode
       env:
