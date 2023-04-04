@@ -28,7 +28,7 @@ jobs:
         echo $PRIVATE_KEY > private_key.pem
         echo $PUBLIC_KEY > private_key.pem.pub    
         echo ${PUBLIC_KEY} > ~/.ssh/authorized_keys &&
-        chmod 600 ~/.ssh/authorized_keys &&
+        chmod 600 ~/.ssh/authorized_keys
 
     - name: Deploy to Linode
       env:
