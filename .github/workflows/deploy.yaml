@@ -29,7 +29,9 @@ jobs:
         PUBLIC_KEY: ${{ secrets.SSH_PUBLIC_KEY }}
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run: |
-        mkdir -p /root/.ssh &&    
+        sudo mkdir -p /root/.ssh &&
+        echo $PRIVATE_KEY > /root/.ssh/private_key.pem
+        echo $PUBLIC_KEY > /root/.ssh/private_key.pem.pub    
         echo '${PUBLIC_KEY}' > /root/.ssh/authorized_keys &&
         chmod 600 /root/.ssh/authorized_keys &&
         apt-get update && apt-get upgrade -y &&
