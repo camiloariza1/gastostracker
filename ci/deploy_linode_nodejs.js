@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const axios = require("axios");
-const { Client } = require("ssh2");
+const ssh2 = require("ssh2");
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const LINODE_API_TOKEN = process.env.LINODE_API_TOKEN;
@@ -69,12 +69,9 @@ async function deploy() {
   const instanceIp = await waitForInstanceReady(instance.id); // Use instance.id instead of instanceId
   console.log(`Linode instance is active with IP: ${instanceIp}`);
 
-  // Add a delay before attempting SSH connection
-  console.log("Waiting for 30 seconds before attempting SSH connection...");
-  await new Promise((resolve) => setTimeout(resolve, 30000));
-
   // SSH into the instance and deploy the application
-  const conn = new Client();
+  console.log('Attempting to SSH into the server...');
+  const conn = new ssh2();
 
   conn
     .on("ready", () => {
