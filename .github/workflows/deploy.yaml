@@ -30,15 +30,15 @@ jobs:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run: |
         sudo mkdir -p ~/.ssh &&
-        chmod 700 ~/.ssh
+        sudo chmod 700 ~/.ssh
         echo $PRIVATE_KEY > private_key.pem
         echo $PUBLIC_KEY > private_key.pem.pub    
         echo '${PUBLIC_KEY}' > ~/.ssh/authorized_keys &&
-        chmod 600 ~/.ssh/authorized_keys &&
-        apt-get update && apt-get upgrade -y &&
-        apt-get install -y openssh-server build-essential python &&
-        ufw allow ssh &&
+        sudo chmod 600 ~/.ssh/authorized_keys &&
+        sudo apt-get update && apt-get upgrade -y &&
+        sudo apt-get install -y openssh-server build-essential python &&
+        sudo ufw allow ssh &&
         echo "Setting up Linode instance, installing Node.js, and deploying application..."
-        ./ci/deploy_linode_nodejs.js
+        sudo ./ci/deploy_linode_nodejs.js
           
 
