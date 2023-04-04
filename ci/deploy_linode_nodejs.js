@@ -3,8 +3,7 @@
 const axios = require("axios");
 const { Client } = require("ssh2");
 
-const PUBLIC_KEY = process.env.PUBLIC_KEY;
-const PRIVATE_KEY_PATH = process.env.PRIVATE_KEY;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const LINODE_API_TOKEN = process.env.LINODE_API_TOKEN;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 
@@ -114,7 +113,7 @@ async function deploy() {
       host: instanceIp,
       port: 22,
       username: "root",
-      private_key_path: PRIVATE_KEY_PATH,
+      privateKey: PRIVATE_KEY,
     });
 }
 
