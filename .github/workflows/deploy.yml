@@ -41,6 +41,6 @@ jobs:
         PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
         echo "Setting up Linode instance, installing Node.js, and deploying application..."
-        sudo ./ci/deploy_linode_nodejs.js
+        ./ci/deploy_linode_nodejs.js
           
 
