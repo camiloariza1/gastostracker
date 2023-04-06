@@ -6,7 +6,6 @@ const { Client } = require("ssh2");
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const LINODE_API_TOKEN = process.env.LINODE_API_TOKEN;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
-const RUNNER_IP = process.env.RUNNER_IP;
 
 const linodeApi = axios.create({
   baseURL: "https://api.linode.com/v4",
@@ -49,15 +48,7 @@ async function waitForInstanceReady(instanceId) {
   return checkInstanceStatus();
 }
 
-async function whitelistRunnerIp() {
-  console.log("Whitelisting runner IP...");
-  const responseWhitelisting = await linodeApi.post("/networking/ip-whitelist", {
-    addresses: RUNNER_IP,
-  });
-}
-
 async function deploy() {
-  await whitelistRunnerIp();
   // Terminate running instances
   await terminateRunningInstances();
 
