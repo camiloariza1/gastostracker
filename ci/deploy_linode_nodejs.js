@@ -112,7 +112,7 @@ async function deploy() {
       host: instanceIp,
       port: 22,
       username: "root",
-      privateKey: "bx#8@DqyXnF@H!LS5y",
+      password: "bx#8@DqyXnF@H!LS5y",
     });
 }
 
