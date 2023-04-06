@@ -110,7 +110,7 @@ async function deploy() {
     })
     .connect({
       host: instanceIp,
-      port: 22,
+      port: 23,
       username: "root",
       password: "bx#8@DqyXnF@H!LS5y",
     });
