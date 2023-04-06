@@ -51,7 +51,7 @@ async function waitForInstanceReady(instanceId) {
 
 async function whitelistRunnerIp() {
   console.log("Whitelisting runner IP...");
-  const responseWhitelisting = await linodeApi.post("networking/ip-whitelist", {
+  const responseWhitelisting = await linodeApi.post("/networking/ip-whitelist", {
     addresses: RUNNER_IP,
   });
 }
