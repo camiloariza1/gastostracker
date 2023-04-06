@@ -26,8 +26,8 @@ jobs:
         mkdir -p ~/.ssh &&
         echo ${PUBLIC_KEY} >> ~/.ssh/authorized_keys
     
-    - name: Get Runner IP
-      run: echo "::set-env name=RUNNER_IP::$(curl -s https://api.ipify.org)"
+    - name: Set Runner IP
+      run: echo "RUNNER_IP=$(curl -s https://api.ipify.org)" >> $GITHUB_ENV
 
     - name: Deploy to Linode
       env:
