@@ -13,6 +13,7 @@ const ExpensesSchema = new Schema({
     type: String,
     required: true,
   },
+  timestamps: true
 });
 
 const Expense = model('Expense', ExpensesSchema);
