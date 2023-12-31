@@ -1,15 +1,15 @@
- FROM node:latest
+FROM node:latest
 
- RUN mkdir -p /app
- WORKDIR /app
+WORKDIR /usr/src
 
- COPY package.json /app
- RUN yarn
+COPY package*.json ./
+RUN yarn
 
- COPY . /app
+# Bundle app source inside the Docker image
+COPY . .
 
- EXPOSE 7500
+# Expose port 3000 for the server
+EXPOSE 3000
 
- ENTRYPOINT ["node"]
-
- CMD ["app.js"]
+# Start the server.js file
+CMD ["node", "src/config/server.js"]
