@@ -22,4 +22,4 @@ clearAllCommand(bot);
 totalCommand(bot);
 helpCommand(bot);
 
-module.exports = bot;  // Export the bot instance
+module.exports = bot;
