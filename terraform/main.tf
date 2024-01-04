@@ -2,44 +2,31 @@ module "ecs" {
   source = "./modules/ecs"
 
   # Pass in variables required for the ECS module
-  cluster_name = "gastostracker-cluster"
-  service_name = "gastostracker-service"
   task_family  = "gastostracker-task-family"
+  execution_role_arn = aws_iam_role.ecs_execution_role.arn
+
+  subnets = [data.aws_subnet.selected.id]
+  security_group_id = aws_security_group.ecs_sg.id
 }
 
-# ... Define your network resources here or in separate modules ...
-resource "aws_vpc" "my_vpc" {
-  cidr_block = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+data "aws_vpc" "default" {
+  default = true
+}
 
-  tags = {
-    Name = "my-vpc"
+data "aws_subnet" "selected" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
   }
-}
 
-resource "aws_subnet" "my_subnet_1" {
-  vpc_id            = aws_vpc.my_vpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "your-aws-regiona"
-
-  tags = {
-    Name = "my-subnet-1"
-  }
-}
-
-resource "aws_subnet" "my_subnet_2" {
-  vpc_id            = aws_vpc.my_vpc.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "your-aws-regionb"
-
-  tags = {
-    Name = "my-subnet-2"
+  filter {
+    name   = "availability-zone"
+    values = ["us-east-1a"]  # Replace with your desired availability zone
   }
 }
 
 resource "aws_internet_gateway" "my_gw" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = data.aws_vpc.default.id
 
   tags = {
     Name = "my-internet-gateway"
@@ -47,7 +34,7 @@ resource "aws_internet_gateway" "my_gw" {
 }
 
 resource "aws_route_table" "my_route_table" {
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = data.aws_vpc.default.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -60,19 +47,14 @@ resource "aws_route_table" "my_route_table" {
 }
 
 resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.my_subnet_1.id
-  route_table_id = aws_route_table.my_route_table.id
-}
-
-resource "aws_route_table_association" "b" {
-  subnet_id      = aws_subnet.my_subnet_2.id
+  subnet_id      = data.aws_subnet.selected.id
   route_table_id = aws_route_table.my_route_table.id
 }
 
 resource "aws_security_group" "ecs_sg" {
   name        = "ecs-security-group"
   description = "Security group for ECS tasks"
-  vpc_id      = aws_vpc.my_vpc.id
+  vpc_id      = data.aws_vpc.default.id
 
   # Define your ingress and egress rules
   ingress {
@@ -93,3 +75,57 @@ resource "aws_security_group" "ecs_sg" {
     Name = "ecs-security-group"
   }
 }
+
+resource "aws_iam_role" "ecs_execution_role" {
+  name = "ecs_execution_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy_attachment" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+## MONGO
+
+resource "aws_docdb_cluster" "docdb" {
+  cluster_identifier      = "my-docdb-cluster"
+  engine                  = "docdb"
+  master_username         = "docdbadmin"
+  master_password         = "passworddocdb"
+  db_cluster_parameter_group_name = "default.docdb3.6"
+  vpc_security_group_ids  = [aws_security_group.docdb_sg.id]
+  db_subnet_group_name    = aws_docdb_subnet_group.docdb_subnet_group.name
+  skip_final_snapshot     = true
+}
+
+resource "aws_docdb_subnet_group" "docdb_subnet_group" {
+  name       = "gastostracker-docdb-subnet-group"
+  subnet_ids = [data.aws_subnet.selected.id]
+}
+
+resource "aws_security_group" "docdb_sg" {
+  name        = "gastostracker-docdb-sg"
+  description = "Security group for gastostracker DocumentDB"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+}
+

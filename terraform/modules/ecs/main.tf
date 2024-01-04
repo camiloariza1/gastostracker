@@ -1,20 +1,34 @@
-resource "aws_ecs_cluster" "cluster" {
+resource "aws_ecs_cluster" "gastostracker-cluster" {
   name = var.cluster_name
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
-resource "aws_ecs_task_definition" "task" {
+resource "aws_ecs_task_definition" "task-definition" {
   family                   = var.task_family
-  network_mode             = "awsvpc"  # Change as per your requirements
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
   execution_role_arn       = var.execution_role_arn
+  cpu                      = "256"
+  memory                   = "256"
   container_definitions    = file("${path.module}/deployment/ecs-task-definition.json")
 
-  # ... other configurations ...
 }
 
-resource "aws_ecs_service" "service" {
+resource "aws_ecs_service" "gastostracker-ecs-service" {
   name            = var.service_name
-  cluster         = aws_ecs_cluster.cluster.id
-  task_definition = aws_ecs_task_definition.task.arn
+  cluster         = aws_ecs_cluster.gastostracker-cluster.id
+  task_definition = aws_ecs_task_definition.task-definition.arn
+  launch_type     = "FARGATE"
 
-  # ... other configurations ...
+  network_configuration {
+    subnets = var.subnets
+    security_groups = [var.security_group_id]
+  }
+
+  desired_count = 1
 }
+
