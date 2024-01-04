@@ -4,3 +4,7 @@ node_modules
 private_key.pem
 private_key.pem.pub
 data
+*.tfstate*
+**/.terraform/
+*.tfstate.backup
+.terraform.lock.hcl

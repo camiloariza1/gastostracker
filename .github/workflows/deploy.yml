@@ -11,32 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Login to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-    - name: Build, tag, and push image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: gastostracker-app
-        IMAGE_TAG: latest
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Deploy to ECS
+        run: |
+          # Login to Amazon ECR
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 851285784641.dkr.ecr.us-east-1.amazonaws.com
 
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: /deploy/ecs-task-definition.json
-        container-name: gastostracker-container
-        image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # Build, tag, and push the Docker image to ECR
+          docker build -t gastostracker .
+          docker tag gastostracker:latest 851285784641.dkr.ecr.us-east-1.amazonaws.com/gastostracker:latest
+          docker push 851285784641.dkr.ecr.us-east-1.amazonaws.com/gastostracker:latest
 
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        service: gastostracker-service
-        cluster: gastostracker-cluster
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
+          # Update ECS service to use the new image
+          aws ecs update-service --cluster your-cluster-name --service your-service-name --force-new-deployment
+
