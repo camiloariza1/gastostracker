@@ -5,7 +5,7 @@ module "ecs" {
   task_family  = "gastostracker-task-family"
   execution_role_arn = aws_iam_role.ecs_execution_role.arn
 
-  subnets = [data.aws_subnet.selected.id]
+  subnets = [data.aws_subnet.subnet_az1.id]
   security_group_id = aws_security_group.ecs_sg.id
 }
 
@@ -13,23 +13,33 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnet" "selected" {
+data "aws_subnet" "subnet_az1" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
-
   filter {
     name   = "availability-zone"
-    values = ["us-east-1a"]  # Replace with your desired availability zone
+    values = ["us-east-1a"]  # Replace with your actual AZ
   }
 }
 
-resource "aws_internet_gateway" "my_gw" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_subnet" "subnet_az2" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+  filter {
+    name   = "availability-zone"
+    values = ["us-east-1b"]  # Replace with your actual AZ
+  }
+}
 
-  tags = {
-    Name = "my-internet-gateway"
+# Fetch the Internet Gateway attached to the default VPC
+data "aws_internet_gateway" "default" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [data.aws_vpc.default.id]
   }
 }
 
@@ -38,7 +48,7 @@ resource "aws_route_table" "my_route_table" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.my_gw.id
+    gateway_id = data.aws_internet_gateway.default.id
   }
 
   tags = {
@@ -47,7 +57,7 @@ resource "aws_route_table" "my_route_table" {
 }
 
 resource "aws_route_table_association" "a" {
-  subnet_id      = data.aws_subnet.selected.id
+  subnet_id      = data.aws_subnet.subnet_az1.id
   route_table_id = aws_route_table.my_route_table.id
 }
 
@@ -113,7 +123,7 @@ resource "aws_docdb_cluster" "docdb" {
 
 resource "aws_docdb_subnet_group" "docdb_subnet_group" {
   name       = "gastostracker-docdb-subnet-group"
-  subnet_ids = [data.aws_subnet.selected.id]
+  subnet_ids = [data.aws_subnet.subnet_az1.id, data.aws_subnet.subnet_az2.id]
 }
 
 resource "aws_security_group" "docdb_sg" {
@@ -131,12 +141,8 @@ resource "aws_security_group" "docdb_sg" {
 
 ## S3 for Terraform statefile
 
-provider "aws" {
-  region = "us-east-1"  # Your AWS region
-}
-
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "my-terraform-state-bucket"  # Replace with your unique bucket name
+  bucket = "my-terraform-state-gastos-bucket"
   versioning {
     enabled = true
   }
